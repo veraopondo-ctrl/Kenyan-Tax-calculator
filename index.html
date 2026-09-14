@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Google Search & SEO Meta Tags -->
+  <title>Kenyan Net Salary & Tax Calculator | PAYE, SHIF, Housing Levy</title>
+  <meta name="title" content="Kenyan Net Salary & Tax Calculator | PAYE, SHIF, Housing Levy">
+  <meta name="description" content="Calculate your monthly net take-home pay in Kenya under updated KRA tax rules. Includes instant deductions for PAYE, SHIF (2.75%), Housing Levy (1.5%), and NSSF.">
+  <meta name="keywords" content="Kenya salary calculator, KRA PAYE calculator, SHIF calculator Kenya, Housing Levy deduction, Net salary Kenya, KRA tax calculator 2026">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="Salary Calculator KE">
+
+  <!-- Open Graph / WhatsApp / Facebook Preview Tags -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://veraopondo-ctrl.github.io/salary-calculator/">
+  <meta property="og:title" content="Kenyan Net Salary & Statutory Tax Calculator">
+  <meta property="og:description" content="Check your exact take-home pay instantly. Automatically calculates PAYE, SHIF (2.75%), Housing Levy (1.5%), and NSSF deductions under current KRA rates.">
+  <meta property="og:image" content="https://veraopondo-ctrl.github.io/salary-calculator/preview.png">
+
+  <!-- Twitter / X Preview Tags -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://veraopondo-ctrl.github.io/salary-calculator/">
+  <meta property="twitter:title" content="Kenyan Net Salary & Tax Calculator">
+  <meta property="twitter:description" content="Instantly compute your take-home pay with updated SHIF, Housing Levy, NSSF, and PAYE statutory rates.">
+  <meta property="twitter:image" content="https://veraopondo-ctrl.github.io/salary-calculator/preview.png">
+
+  <link rel="manifest" href="manifest.json">
+  
+  <style>
+    :root {
+      --primary: #006600; /* Kenyan Green */
+      --dark: #111111;
+      --light: #f4f6f8;
+      --card-bg: #ffffff;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    h2 {
+      margin-top: 0;
+      color: var(--primary);
+      text-align: center;
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 18px;
+      box-sizing: border-box;
+    }
+    input[type="number"]:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+    .btn {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .results {
+      margin-top: 24px;
+      border-top: 2px dashed #eee;
+      padding-top: 16px;
+      display: none;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+    .row.highlight {
+      font-weight: bold;
+      font-size: 18px;
+      color: var(--primary);
+      border-top: 1px solid #ccc;
+      padding-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Salary & Statutory Tax Calculator</h2>
+  <div class="input-group">
+    <label for="gross">Gross Monthly Salary (KES):</label>
+    <input type="number" id="gross" placeholder="e.g. 50000" min="0">
+  </div>
+  <button class="btn" onclick="calculateTax()">Calculate Net Pay</button>
+
+  <div class="results" id="results">
+    <div class="row">
+      <span>Gross Pay:</span>
+      <span id="res-gross">KES 0</span>
+    </div>
+    <div class="row">
+      <span>NSSF Contribution:</span>
+      <span id="res-nssf">- KES 0</span>
+    </div>
+    <div class="row">
+      <span>SHIF (2.75%):</span>
+      <span id="res-shif">- KES 0</span>
+    </div>
+    <div class="row">
+      <span>Housing Levy (1.5%):</span>
+      <span id="res-housing">- KES 0</span>
+    </div>
+    <div class="row">
+      <span>PAYE (Income Tax):</span>
+      <span id="res-paye">- KES 0</span>
+    </div>
+    <div class="row highlight">
+      <span>Take-Home Net Pay:</span>
+      <span id="res-net">KES 0</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  function calculateTax() {
+    const gross = parseFloat(document.getElementById('gross').value) || 0;
+    if (gross <= 0) return;
+
+    // 1. Statutory Deductions
+    // NSSF Tier I & II (6% capped at Tier II threshold)
+    let nssf = Math.min(gross * 0.06, 6480);
+    
+    // SHIF (2.75% of Gross, Uncapped)
+    let shif = gross * 0.0275;
+    
+    // Housing Levy (1.5% of Gross)
+    let housing = gross * 0.015;
+
+    // 2. Taxable Pay (NSSF & Housing Levy are allowable deductions)
+    let taxablePay = Math.max(0, gross - nssf - housing);
+
+    // 3. PAYE Band Calculations
+    let grossPAYE = 0;
+    let tempPay = taxablePay;
+
+    if (tempPay > 800000) {
+      grossPAYE += (tempPay - 800000) * 0.35;
+      tempPay = 800000;
+    }
+    if (tempPay > 500000) {
+      grossPAYE += (tempPay - 500000) * 0.325;
+      tempPay = 500000;
+    }
+    if (tempPay > 32333) {
+      grossPAYE += (tempPay - 32333) * 0.30;
+      tempPay = 32333;
+    }
+    if (tempPay > 24000) {
+      grossPAYE += (tempPay - 24000) * 0.25;
+      tempPay = 24000;
+    }
+    if (tempPay > 0) {
+      grossPAYE += tempPay * 0.10;
+    }
+
+    // Personal Relief (KES 2,400 / month)
+    let netPAYE = Math.max(0, grossPAYE - 2400);
+
+    // 4. Calculate Net Take-Home Pay
+    let netPay = gross - nssf - shif - housing - netPAYE;
+
+    // Render Results
+    document.getElementById('res-gross').innerText = 'KES ' + gross.toLocaleString();
+    document.getElementById('res-nssf').innerText = '- KES ' + nssf.toLocaleString(undefined, {maximumFractionDigits: 2});
+    document.getElementById('res-shif').innerText = '- KES ' + shif.toLocaleString(undefined, {maximumFractionDigits: 2});
+    document.getElementById('res-housing').innerText = '- KES ' + housing.toLocaleString(undefined, {maximumFractionDigits: 2});
+    document.getElementById('res-paye').innerText = '- KES ' + netPAYE.toLocaleString(undefined, {maximumFractionDigits: 2});
+    document.getElementById('res-net').innerText = 'KES ' + netPay.toLocaleString(undefined, {maximumFractionDigits: 2});
+
+    document.getElementById('results').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
